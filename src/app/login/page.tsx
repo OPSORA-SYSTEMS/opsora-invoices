@@ -3,69 +3,52 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Mail, Lock, Zap } from "lucide-react";
-
-const schema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type FormData = z.infer<typeof schema>;
+import { Zap, Delete } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (data: FormData) => {
-    setLoading(true);
+  const handleDigit = async (digit: string) => {
+    if (loading) return;
+    const newPin = pin + digit;
+    setPin(newPin);
     setError("");
 
-    try {
+    if (newPin.length === 4) {
+      setLoading(true);
       const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
+        pin: newPin,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password. Please try again.");
+        setError("Incorrect PIN. Try again.");
+        setPin("");
       } else {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = () => {
+    if (loading) return;
+    setPin((p) => p.slice(0, -1));
+    setError("");
+  };
+
   return (
     <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
-      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-accent/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md relative">
-        {/* Card */}
+      <div className="w-full max-w-xs relative">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-brand-bg px-8 py-8 text-center">
@@ -75,115 +58,66 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-2xl font-bold text-white">Opsora Systems</h1>
-            <p className="text-brand-highlight/70 text-sm mt-1">
-              Invoice Manager
-            </p>
+            <p className="text-brand-highlight/70 text-sm mt-1">Invoice Manager</p>
           </div>
 
-          {/* Pink accent bar */}
           <div className="h-1 bg-gradient-to-r from-brand-accent to-pink-400" />
 
-          {/* Form */}
           <div className="px-8 py-8">
-            <h2 className="text-lg font-semibold text-brand-textDark mb-1">
-              Sign in to your account
-            </h2>
-            <p className="text-sm text-brand-textMuted mb-6">
-              Enter your credentials to continue
+            <p className="text-center text-sm font-medium text-brand-textMuted mb-6">
+              Enter your 4-digit PIN
             </p>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-brand-textDark mb-1.5">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="w-4 h-4 text-brand-textMuted" />
-                  </div>
-                  <input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    className={`w-full rounded-lg border pl-10 pr-3 py-2.5 text-sm text-brand-textDark placeholder-brand-textMuted focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent transition-colors ${
-                      errors.email ? "border-red-400" : "border-brand-border"
-                    }`}
-                    {...register("email")}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
-                )}
+            {/* PIN dots */}
+            <div className="flex justify-center gap-4 mb-6">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`w-4 h-4 rounded-full border-2 transition-all duration-150 ${
+                    i < pin.length
+                      ? "bg-brand-accent border-brand-accent"
+                      : "border-brand-border"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700 text-center mb-4">
+                {error}
               </div>
+            )}
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-brand-textDark mb-1.5">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-brand-textMuted" />
-                  </div>
-                  <input
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="Enter your password"
-                    className={`w-full rounded-lg border pl-10 pr-3 py-2.5 text-sm text-brand-textDark placeholder-brand-textMuted focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent transition-colors ${
-                      errors.password ? "border-red-400" : "border-brand-border"
-                    }`}
-                    {...register("password")}
-                  />
-                </div>
-                {errors.password && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
-                  {error}
-                </div>
-              )}
-
-              {/* Submit */}
+            {/* Number pad */}
+            <div className="grid grid-cols-3 gap-3">
+              {["1","2","3","4","5","6","7","8","9"].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => handleDigit(d)}
+                  disabled={loading || pin.length >= 4}
+                  className="h-14 rounded-xl border border-brand-border text-xl font-semibold text-brand-textDark hover:bg-brand-accent hover:text-white hover:border-brand-accent transition-colors disabled:opacity-40"
+                >
+                  {d}
+                </button>
+              ))}
+              {/* Bottom row: empty, 0, delete */}
+              <div />
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-brand-accent text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-lg shadow-brand-accent/25 mt-2"
+                onClick={() => handleDigit("0")}
+                disabled={loading || pin.length >= 4}
+                className="h-14 rounded-xl border border-brand-border text-xl font-semibold text-brand-textDark hover:bg-brand-accent hover:text-white hover:border-brand-accent transition-colors disabled:opacity-40"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Signing in...
-                  </span>
-                ) : (
-                  "Sign In"
-                )}
+                0
               </button>
-            </form>
+              <button
+                onClick={handleDelete}
+                disabled={loading || pin.length === 0}
+                className="h-14 rounded-xl border border-brand-border flex items-center justify-center text-brand-textMuted hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors disabled:opacity-40"
+              >
+                <Delete className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 

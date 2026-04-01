@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id              Int     @id @default(1)
+  companyName     String  @default("Opsora Systems")
+  companyEmail    String  @default("rajbarot@opsorastystems.com")
+  companyAddress  String  @default("")
+  companyCity     String  @default("Vancouver")
+  companyProvince String  @default("BC")
+  companyPostal   String  @default("")
+  companyCountry  String  @default("Canada")
+  gstNumber       String  @default("")
+  gstRate         Float   @default(5.0)
+  invoicePrefix   String  @default("OPS")
+  paymentTerms    String  @default("Due on receipt")
+  logoPath        String  @default("")
+  emailSignature  String  @default("")
+  reminderDays    String  @default("1,2,3")
+  nextInvoiceSeq  Int     @default(1)
+}
+
+model Client {
+  id        Int        @id @default(autoincrement())
+  name      String
+  company   String     @default("")
+  email     String
+  phone     String     @default("")
+  address   String     @default("")
+  city      String     @default("")
+  province  String     @default("")
+  postal    String     @default("")
+  country   String     @default("Canada")
+  notes     String     @default("")
+  createdAt DateTime   @default(now())
+  invoices  Invoice[]
+  templates Template[]
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @default("")
+  unitPrice   Float
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id           Int           @id @default(autoincrement())
+  number       String        @unique
+  clientId     Int
+  client       Client        @relation(fields: [clientId], references: [id])
+  status       String        @default("draft")
+  issueDate    DateTime      @default(now())
+  dueDate      DateTime
+  subtotal     Float         @default(0)
+  discountPct  Float         @default(0)
+  discountAmt  Float         @default(0)
+  gstRate      Float         @default(5.0)
+  gstAmt       Float         @default(0)
+  total        Float         @default(0)
+  paymentTerms String        @default("Due on receipt")
+  notes        String        @default("")
+  sentAt       DateTime?
+  paidAt       DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  items        InvoiceItem[]
+  reminders    Reminder[]
+}
+
+model InvoiceItem {
+  id          Int     @id @default(autoincrement())
+  invoiceId   Int
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float
+  unitPrice   Float
+  amount      Float
+  sortOrder   Int     @default(0)
+}
+
+model Template {
+  id           Int      @id @default(autoincrement())
+  name         String
+  clientId     Int?
+  client       Client?  @relation(fields: [clientId], references: [id])
+  items        String   // JSON array of line items
+  notes        String   @default("")
+  paymentTerms String   @default("Due on receipt")
+  discountPct  Float    @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Reminder {
+  id           Int       @id @default(autoincrement())
+  invoiceId    Int
+  invoice      Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  daysAfterDue Int
+  scheduledAt  DateTime
+  sentAt       DateTime?
+  createdAt    DateTime  @default(now())
+}

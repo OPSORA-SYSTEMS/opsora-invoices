@@ -1,18 +1,11 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { Invoice } from "@/types";
 import { format } from "date-fns";
 
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.zoho.com",
-    port: parseInt(process.env.SMTP_PORT || "465"),
-    secure: process.env.SMTP_SECURE !== "false",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-};
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL = "invoices@opsorasystems.com";
+const FROM_NAME = "Opsora Systems";
 
 function buildInvoiceEmailHTML(invoice: Invoice, isReminder = false): string {
   const dueDate = format(new Date(invoice.dueDate), "MMMM d, yyyy");
@@ -108,7 +101,7 @@ function buildInvoiceEmailHTML(invoice: Invoice, isReminder = false): string {
               ${invoice.notes ? `<p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;"><strong>Note:</strong> ${invoice.notes}</p>` : ""}
 
               <p style="margin:16px 0 0;color:#374151;font-size:14px;line-height:1.6;padding:16px;background-color:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;">
-                If you are unable to make the online payment, please contact us at <a href="mailto:rajbarot@opsorastystems.com" style="color:#e91e8c;text-decoration:none;">rajbarot@opsorastystems.com</a>
+                If you have any questions, please contact us at <a href="mailto:rajbarot@opsorasystems.com" style="color:#e91e8c;text-decoration:none;">rajbarot@opsorasystems.com</a>
               </p>
             </td>
           </tr>
@@ -118,7 +111,7 @@ function buildInvoiceEmailHTML(invoice: Invoice, isReminder = false): string {
             <td style="background-color:#1a0a2e;padding:24px 40px;text-align:center;">
               <p style="margin:0;color:#f8b4d9;font-size:13px;">Opsora Systems &bull; Vancouver, BC, Canada</p>
               <p style="margin:8px 0 0;color:#6b7280;font-size:12px;">
-                <a href="mailto:rajbarot@opsorastystems.com" style="color:#e91e8c;text-decoration:none;">rajbarot@opsorastystems.com</a>
+                <a href="mailto:rajbarot@opsorasystems.com" style="color:#e91e8c;text-decoration:none;">rajbarot@opsorasystems.com</a>
               </p>
             </td>
           </tr>
@@ -136,13 +129,10 @@ export async function sendInvoiceEmail(
   invoice: Invoice,
   pdfBuffer: Buffer
 ): Promise<void> {
-  const transporter = createTransporter();
+  const resend = getResend();
 
-  const fromName = "Opsora Systems";
-  const fromEmail = process.env.SMTP_USER || "rajbarot@opsorastystems.com";
-
-  await transporter.sendMail({
-    from: `"${fromName}" <${fromEmail}>`,
+  await resend.emails.send({
+    from: `${FROM_NAME} <${FROM_EMAIL}>`,
     to: invoice.client.email,
     subject: `Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, false),
@@ -150,20 +140,16 @@ export async function sendInvoiceEmail(
       {
         filename: `Invoice-${invoice.number}.pdf`,
         content: pdfBuffer,
-        contentType: "application/pdf",
       },
     ],
   });
 }
 
 export async function sendReminderEmail(invoice: Invoice): Promise<void> {
-  const transporter = createTransporter();
+  const resend = getResend();
 
-  const fromName = "Opsora Systems";
-  const fromEmail = process.env.SMTP_USER || "rajbarot@opsorastystems.com";
-
-  await transporter.sendMail({
-    from: `"${fromName}" <${fromEmail}>`,
+  await resend.emails.send({
+    from: `${FROM_NAME} <${FROM_EMAIL}>`,
     to: invoice.client.email,
     subject: `Payment Reminder: Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, true),
@@ -175,14 +161,23 @@ export async function testSMTPConnection(): Promise<{
   message: string;
 }> {
   try {
-    const transporter = createTransporter();
-    await transporter.verify();
-    return { success: true, message: "SMTP connection successful!" };
+    const resend = getResend();
+    const result = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: FROM_EMAIL,
+      subject: "SMTP Test - Opsora Invoice System",
+      html: "<p>Email configuration is working correctly.</p>",
+    });
+
+    if (result.error) {
+      return { success: false, message: result.error.message };
+    }
+
+    return { success: true, message: "Email connection successful!" };
   } catch (error) {
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "SMTP connection failed",
+      message: error instanceof Error ? error.message : "Connection failed",
     };
   }
 }

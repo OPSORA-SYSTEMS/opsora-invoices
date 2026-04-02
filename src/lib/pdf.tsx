@@ -418,6 +418,15 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
                   {invoice.status.toUpperCase()}
                 </Text>
               </View>
+              {gstNumber ? (
+                <>
+                  <View style={styles.infoCardDivider} />
+                  <View style={styles.infoCardRow}>
+                    <Text style={styles.infoCardLabel}>GST #</Text>
+                    <Text style={styles.infoCardValue}>{gstNumber}</Text>
+                  </View>
+                </>
+              ) : null}
             </View>
           </View>
 

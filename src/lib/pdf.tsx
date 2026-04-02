@@ -13,6 +13,7 @@ import { format } from "date-fns";
 
 const PINK = "#e91e8c";
 const DARK = "#1a0a2e";
+const HEADER_BG = "#0d0018";   // matches logo corner/edge dark gradient
 const LIGHT_PINK_BG = "#fdf2f8";
 const BORDER = "#f0e0ee";
 const MUTED = "#9ca3af";
@@ -25,22 +26,21 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: DARK,
     flexDirection: "column",
-    paddingHorizontal: 48,
-    paddingTop: 40,
-    paddingBottom: 0,
   },
 
   // ── Header ──────────────────────────────────────────────
   header: {
+    backgroundColor: HEADER_BG,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    paddingHorizontal: 36,
+    paddingVertical: 0,
+    marginBottom: 0,
   },
   logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 10,
+    width: 110,
+    height: 110,
   },
   companyTextBlock: {
     flexDirection: "column",
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
   },
   invoiceNumber: {
-    color: DARK,
+    color: "#f8b4d9",
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
     marginTop: 4,
@@ -75,14 +75,14 @@ const styles = StyleSheet.create({
   // ── Accent bar ──────────────────────────────────────────
   accentBar: {
     backgroundColor: PINK,
-    height: 2,
-    marginBottom: 24,
-    borderRadius: 1,
+    height: 3,
   },
 
   // ── Content ─────────────────────────────────────────────
   content: {
     flex: 1,
+    paddingHorizontal: 48,
+    paddingTop: 24,
   },
 
   infoRow: {
@@ -248,6 +248,7 @@ const styles = StyleSheet.create({
     borderTopColor: BORDER,
     borderTopStyle: "solid",
     paddingVertical: 14,
+    paddingHorizontal: 48,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

@@ -222,6 +222,59 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
   },
 
+  // ── Interac ──────────────────────────────────────────────
+  interacBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fffbea",
+    borderWidth: 1,
+    borderColor: "#FFD100",
+    borderStyle: "solid",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+    gap: 12,
+  },
+  interacBadge: {
+    backgroundColor: "#FFD100",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  interacBadgeText: {
+    color: "#000000",
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 0.5,
+  },
+  interacBadgeSub: {
+    color: "#333333",
+    fontSize: 7,
+    letterSpacing: 0.3,
+    marginTop: 1,
+  },
+  interacContent: {
+    flex: 1,
+  },
+  interacTitle: {
+    color: DARK,
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 2,
+  },
+  interacEmail: {
+    color: PINK,
+    fontSize: 9.5,
+    fontFamily: "Helvetica-Bold",
+  },
+  interacNote: {
+    color: MUTED,
+    fontSize: 8,
+    marginTop: 2,
+  },
+
   // ── Notes ───────────────────────────────────────────────
   notesSection: {
     marginBottom: 20,
@@ -286,9 +339,10 @@ const styles = StyleSheet.create({
 interface InvoicePDFDocumentProps {
   invoice: Invoice;
   logoUrl?: string;
+  gstNumber?: string | null;
 }
 
-const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUrl }) => {
+const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUrl, gstNumber }) => {
   const issueDate = format(new Date(invoice.issueDate), "MMM d, yyyy");
   const dueDate = format(new Date(invoice.dueDate), "MMM d, yyyy");
 
@@ -311,6 +365,7 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
               <View style={styles.companyTextBlock}>
                 <Text style={styles.companyName}>Opsora Systems</Text>
                 <Text style={styles.companySubtext}>Vancouver, BC, Canada</Text>
+                {gstNumber ? <Text style={styles.companySubtext}>GST #: {gstNumber}</Text> : null}
               </View>
             )}
           </View>
@@ -414,6 +469,19 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
             </View>
           </View>
 
+          {/* Interac e-Transfer payment box */}
+          <View style={styles.interacBox}>
+            <View style={styles.interacBadge}>
+              <Text style={styles.interacBadgeText}>interac</Text>
+              <Text style={styles.interacBadgeSub}>e-Transfer</Text>
+            </View>
+            <View style={styles.interacContent}>
+              <Text style={styles.interacTitle}>Pay via Interac e-Transfer</Text>
+              <Text style={styles.interacEmail}>rajbarot@opsorasystems.com</Text>
+              <Text style={styles.interacNote}>Please include invoice number in the memo</Text>
+            </View>
+          </View>
+
           {/* Notes */}
           {invoice.notes ? (
             <View style={styles.notesSection}>
@@ -440,8 +508,8 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
   );
 };
 
-export async function generateInvoicePDF(invoice: Invoice, logoUrl?: string): Promise<Buffer> {
-  const doc = <InvoicePDFDocument invoice={invoice} logoUrl={logoUrl} />;
+export async function generateInvoicePDF(invoice: Invoice, logoUrl?: string, gstNumber?: string | null): Promise<Buffer> {
+  const doc = <InvoicePDFDocument invoice={invoice} logoUrl={logoUrl} gstNumber={gstNumber} />;
   const buffer = await renderToBuffer(doc);
   return Buffer.from(buffer);
 }

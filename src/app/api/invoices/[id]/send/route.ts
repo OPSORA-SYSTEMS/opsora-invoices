@@ -57,7 +57,7 @@ export async function POST(
   };
 
   try {
-    const pdfBuffer = await generateInvoicePDF(invoiceForEmail, logoUrl);
+    const pdfBuffer = await generateInvoicePDF(invoiceForEmail, logoUrl, settings?.gstNumber ?? null);
     await sendInvoiceEmail(invoiceForEmail, pdfBuffer);
   } catch (err) {
     console.error("Failed to send invoice email:", err);

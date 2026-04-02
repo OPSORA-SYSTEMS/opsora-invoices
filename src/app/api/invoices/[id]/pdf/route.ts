@@ -55,7 +55,7 @@ export async function GET(
     })),
   };
 
-  const pdfBuffer = await generateInvoicePDF(invoiceForPDF, logoUrl);
+  const pdfBuffer = await generateInvoicePDF(invoiceForPDF, logoUrl, settings?.gstNumber ?? null);
 
   return new NextResponse(pdfBuffer as unknown as BodyInit, {
     status: 200,

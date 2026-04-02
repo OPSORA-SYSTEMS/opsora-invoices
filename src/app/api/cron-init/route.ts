@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { startCronJobs } from "@/lib/cron";
-
-// This route is called once to initialize cron jobs
-// In production, the cron is initialized when the server starts
 
 let initialized = false;
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   if (!initialized) {
     startCronJobs();
     initialized = true;

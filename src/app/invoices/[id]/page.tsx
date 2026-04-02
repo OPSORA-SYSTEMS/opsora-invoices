@@ -440,10 +440,10 @@ export default function InvoiceDetailPage() {
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
               If you are unable to make the online payment, please contact us at{" "}
               <a
-                href="mailto:rajbarot@opsorastystems.com"
+                href="mailto:rajbarot@opsorasystems.com"
                 className="text-brand-accent font-medium hover:underline"
               >
-                rajbarot@opsorastystems.com
+                rajbarot@opsorasystems.com
               </a>
             </div>
           </div>

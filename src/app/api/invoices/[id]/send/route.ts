@@ -29,9 +29,10 @@ export async function POST(
   }
 
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const logoUrl = settings?.logoPath
-    ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${settings.logoPath}`
-    : undefined;
+    ? `${baseUrl}${settings.logoPath}`
+    : `${baseUrl}/logo.png`;
 
   const invoiceForEmail: Invoice = {
     ...invoice,
@@ -55,13 +56,17 @@ export async function POST(
     })),
   };
 
-  // Generate PDF
-  const pdfBuffer = await generateInvoicePDF(invoiceForEmail, logoUrl);
+  try {
+    const pdfBuffer = await generateInvoicePDF(invoiceForEmail, logoUrl);
+    await sendInvoiceEmail(invoiceForEmail, pdfBuffer);
+  } catch (err) {
+    console.error("Failed to send invoice email:", err);
+    return NextResponse.json(
+      { error: "Failed to send email. Please check your email configuration." },
+      { status: 500 }
+    );
+  }
 
-  // Send email
-  await sendInvoiceEmail(invoiceForEmail, pdfBuffer);
-
-  // Update invoice status
   const updatedInvoice = await prisma.invoice.update({
     where: { id: invoice.id },
     data: {

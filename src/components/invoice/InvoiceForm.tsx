@@ -38,9 +38,10 @@ interface InvoiceFormProps {
     discountPct?: number;
     gstRate?: number;
   };
+  onSave?: (invoice: Record<string, unknown>) => void;
 }
 
-export default function InvoiceForm({ settings, initialData }: InvoiceFormProps) {
+export default function InvoiceForm({ settings, initialData, onSave }: InvoiceFormProps) {
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -128,7 +129,11 @@ export default function InvoiceForm({ settings, initialData }: InvoiceFormProps)
       }
 
       const invoice = await res.json();
-      router.push(`/invoices/${invoice.id}`);
+      if (onSave) {
+        onSave(invoice);
+      } else {
+        router.push(`/invoices/${invoice.id}`);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

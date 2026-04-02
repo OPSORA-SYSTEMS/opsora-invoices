@@ -180,6 +180,11 @@ export default function InvoiceDetailPage() {
               discountPct: invoice.discountPct,
               gstRate: invoice.gstRate,
             }}
+            onSave={(updated) => {
+              setInvoice(updated as unknown as Invoice);
+              setEditing(false);
+              showMessage("success", "Invoice saved successfully!");
+            }}
           />
         </div>
       </AppLayout>

@@ -12,34 +12,42 @@ import {
 import { Invoice } from "@/types";
 import { format } from "date-fns";
 
-// Register fonts
 Font.register({
-  family: "Helvetica",
-  fonts: [],
+  family: "Inter",
+  fonts: [
+    {
+      src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2",
+      fontWeight: 400,
+    },
+    {
+      src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2",
+      fontWeight: 700,
+    },
+  ],
 });
 
 const styles = StyleSheet.create({
   page: {
     backgroundColor: "#ffffff",
-    paddingTop: 0,
-    paddingBottom: 40,
-    paddingHorizontal: 0,
     fontFamily: "Helvetica",
     fontSize: 10,
     color: "#1a0a2e",
+    flexDirection: "column",
   },
   // Header
   header: {
     backgroundColor: "#1a0a2e",
-    paddingTop: 36,
-    paddingBottom: 28,
+    paddingTop: 28,
+    paddingBottom: 22,
     paddingHorizontal: 48,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
   },
-  headerLeft: {
-    flexDirection: "column",
+  logoImage: {
+    width: 130,
+    height: 55,
+    objectFit: "contain",
   },
   companyName: {
     color: "#ffffff",
@@ -52,34 +60,32 @@ const styles = StyleSheet.create({
     fontSize: 9,
     marginTop: 4,
   },
-  logoImage: {
-    width: 120,
-    height: 40,
-    objectFit: "contain",
-  },
   headerRight: {
     alignItems: "flex-end",
   },
   invoiceTitle: {
     color: "#e91e8c",
-    fontSize: 28,
+    fontSize: 30,
     fontFamily: "Helvetica-Bold",
-    letterSpacing: 2,
+    letterSpacing: 3,
   },
   invoiceNumber: {
     color: "#f8b4d9",
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 3,
+    letterSpacing: 0.5,
   },
   // Pink bar
   accentBar: {
     backgroundColor: "#e91e8c",
     height: 3,
   },
-  // Body
-  body: {
+  // Content wrapper — expands to fill page, pushes footer down
+  content: {
+    flex: 1,
     paddingHorizontal: 48,
     paddingTop: 28,
+    paddingBottom: 16,
   },
   // Bill To & Invoice Info row
   infoRow: {
@@ -92,43 +98,54 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: "#e91e8c",
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    letterSpacing: 1.5,
+    letterSpacing: 1.8,
     marginBottom: 8,
   },
   clientName: {
     color: "#1a0a2e",
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Helvetica-Bold",
-    marginBottom: 2,
+    marginBottom: 3,
   },
   clientDetail: {
     color: "#374151",
-    fontSize: 10,
-    lineHeight: 1.5,
+    fontSize: 9.5,
+    lineHeight: 1.6,
   },
   invoiceInfoSection: {
     width: "40%",
     alignItems: "flex-end",
   },
-  invoiceInfoTable: {
+  invoiceInfoCard: {
+    backgroundColor: "#fdf2f8",
+    borderRadius: 6,
+    padding: 14,
     width: "100%",
   },
   invoiceInfoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 4,
+    marginBottom: 5,
   },
   invoiceInfoLabel: {
-    color: "#6b7280",
-    fontSize: 9,
+    color: "#9ca3af",
+    fontSize: 8.5,
+    letterSpacing: 0.3,
   },
   invoiceInfoValue: {
     color: "#1a0a2e",
-    fontSize: 9,
+    fontSize: 8.5,
     fontFamily: "Helvetica-Bold",
+  },
+  // Divider
+  divider: {
+    borderTopWidth: 1,
+    borderTopColor: "#f3d4e8",
+    borderTopStyle: "solid",
+    marginVertical: 10,
   },
   // Line items table
   tableContainer: {
@@ -137,16 +154,16 @@ const styles = StyleSheet.create({
   tableHeader: {
     backgroundColor: "#1a0a2e",
     flexDirection: "row",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
     borderRadius: 4,
   },
   tableHeaderCell: {
     color: "#f8b4d9",
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
   colDescription: { flex: 3 },
   colQty: { flex: 0.8, textAlign: "center" },
@@ -154,37 +171,37 @@ const styles = StyleSheet.create({
   colAmount: { flex: 1.2, textAlign: "right" },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
     borderBottomWidth: 1,
     borderBottomColor: "#f3d4e8",
     borderBottomStyle: "solid",
   },
   tableRowAlt: {
-    backgroundColor: "#fdf2f8",
+    backgroundColor: "#fdf9fd",
   },
   tableCell: {
     color: "#374151",
-    fontSize: 10,
+    fontSize: 9.5,
   },
   // Totals
   totalsContainer: {
     marginLeft: "auto",
-    width: 260,
-    marginBottom: 28,
+    width: 240,
+    marginBottom: 24,
   },
   totalsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   totalsLabel: {
-    color: "#6b7280",
-    fontSize: 10,
+    color: "#9ca3af",
+    fontSize: 9.5,
   },
   totalsValue: {
-    color: "#1a0a2e",
-    fontSize: 10,
+    color: "#374151",
+    fontSize: 9.5,
   },
   totalsDivider: {
     borderTopWidth: 1,
@@ -195,11 +212,11 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     backgroundColor: "#1a0a2e",
-    borderRadius: 4,
-    marginTop: 4,
+    borderRadius: 5,
+    marginTop: 6,
   },
   totalLabel: {
     color: "#f8b4d9",
@@ -213,7 +230,7 @@ const styles = StyleSheet.create({
   },
   // Notes
   notesSection: {
-    marginBottom: 24,
+    marginBottom: 20,
     padding: 12,
     backgroundColor: "#fdf2f8",
     borderLeftWidth: 3,
@@ -223,44 +240,43 @@ const styles = StyleSheet.create({
   },
   notesLabel: {
     color: "#e91e8c",
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 1.5,
-    marginBottom: 4,
+    marginBottom: 5,
   },
   notesText: {
     color: "#374151",
-    fontSize: 10,
-    lineHeight: 1.5,
+    fontSize: 9.5,
+    lineHeight: 1.6,
   },
-  // Footer
+  // Footer — always at bottom
   footer: {
     backgroundColor: "#1a0a2e",
-    paddingVertical: 20,
+    paddingVertical: 18,
     paddingHorizontal: 48,
-    marginTop: 16,
   },
   footerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   footerText: {
     color: "#f8b4d9",
     fontSize: 9,
   },
-  footerNote: {
-    color: "#9ca3af",
-    fontSize: 8,
-    marginTop: 8,
-    textAlign: "center",
-  },
   paymentTermsText: {
     color: "#e91e8c",
     fontSize: 9,
     fontFamily: "Helvetica-Bold",
+  },
+  footerNote: {
+    color: "#9ca3af",
+    fontSize: 8,
+    textAlign: "center",
+    marginTop: 4,
   },
 });
 
@@ -273,8 +289,8 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
   invoice,
   logoUrl,
 }) => {
-  const issueDate = format(new Date(invoice.issueDate), "MMMM d, yyyy");
-  const dueDate = format(new Date(invoice.dueDate), "MMMM d, yyyy");
+  const issueDate = format(new Date(invoice.issueDate), "MMM d, yyyy");
+  const dueDate = format(new Date(invoice.dueDate), "MMM d, yyyy");
 
   return (
     <Document
@@ -285,7 +301,7 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
+          <View>
             {logoUrl ? (
               <Image src={logoUrl} style={styles.logoImage} />
             ) : (
@@ -304,8 +320,8 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
         {/* Accent bar */}
         <View style={styles.accentBar} />
 
-        {/* Body */}
-        <View style={styles.body}>
+        {/* Body — flex: 1 pushes footer to bottom */}
+        <View style={styles.content}>
           {/* Bill To & Invoice Info */}
           <View style={styles.infoRow}>
             <View style={styles.billToSection}>
@@ -327,7 +343,7 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
               {invoice.client.country ? (
                 <Text style={styles.clientDetail}>{invoice.client.country}</Text>
               ) : null}
-              <Text style={[styles.clientDetail, { marginTop: 4 }]}>
+              <Text style={[styles.clientDetail, { marginTop: 5 }]}>
                 {invoice.client.email}
               </Text>
               {invoice.client.phone ? (
@@ -336,7 +352,7 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
             </View>
 
             <View style={styles.invoiceInfoSection}>
-              <View style={styles.invoiceInfoTable}>
+              <View style={styles.invoiceInfoCard}>
                 <View style={styles.invoiceInfoRow}>
                   <Text style={styles.invoiceInfoLabel}>Invoice #</Text>
                   <Text style={[styles.invoiceInfoValue, { color: "#e91e8c" }]}>
@@ -351,9 +367,15 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
                   <Text style={styles.invoiceInfoLabel}>Due Date</Text>
                   <Text style={styles.invoiceInfoValue}>{dueDate}</Text>
                 </View>
+                <View style={[styles.divider, { marginVertical: 6 }]} />
                 <View style={styles.invoiceInfoRow}>
                   <Text style={styles.invoiceInfoLabel}>Status</Text>
-                  <Text style={[styles.invoiceInfoValue, { color: invoice.status === "paid" ? "#16a34a" : invoice.status === "overdue" ? "#dc2626" : "#374151" }]}>
+                  <Text style={[styles.invoiceInfoValue, {
+                    color: invoice.status === "paid" ? "#16a34a"
+                      : invoice.status === "overdue" ? "#dc2626"
+                      : invoice.status === "sent" ? "#2563eb"
+                      : "#9ca3af"
+                  }]}>
                     {invoice.status.toUpperCase()}
                   </Text>
                 </View>
@@ -364,16 +386,10 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
           {/* Line Items Table */}
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, styles.colDescription]}>
-                Description
-              </Text>
+              <Text style={[styles.tableHeaderCell, styles.colDescription]}>Description</Text>
               <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
-              <Text style={[styles.tableHeaderCell, styles.colUnitPrice]}>
-                Unit Price
-              </Text>
-              <Text style={[styles.tableHeaderCell, styles.colAmount]}>
-                Amount
-              </Text>
+              <Text style={[styles.tableHeaderCell, styles.colUnitPrice]}>Unit Price</Text>
+              <Text style={[styles.tableHeaderCell, styles.colAmount]}>Amount</Text>
             </View>
 
             {invoice.items.map((item, index) => (
@@ -401,24 +417,17 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
           <View style={styles.totalsContainer}>
             <View style={styles.totalsRow}>
               <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>
-                ${invoice.subtotal.toFixed(2)} CAD
-              </Text>
+              <Text style={styles.totalsValue}>${invoice.subtotal.toFixed(2)} CAD</Text>
             </View>
 
             {invoice.discountPct > 0 && (
-              <View style={styles.totalsRow}>
-                <Text style={styles.totalsLabel}>
-                  Discount ({invoice.discountPct}%)
-                </Text>
-                <Text style={[styles.totalsValue, { color: "#16a34a" }]}>
-                  -${invoice.discountAmt.toFixed(2)} CAD
-                </Text>
-              </View>
-            )}
-
-            {invoice.discountPct > 0 && (
               <>
+                <View style={styles.totalsRow}>
+                  <Text style={styles.totalsLabel}>Discount ({invoice.discountPct}%)</Text>
+                  <Text style={[styles.totalsValue, { color: "#16a34a" }]}>
+                    -${invoice.discountAmt.toFixed(2)} CAD
+                  </Text>
+                </View>
                 <View style={styles.totalsDivider} />
                 <View style={styles.totalsRow}>
                   <Text style={styles.totalsLabel}>After Discount</Text>
@@ -430,12 +439,8 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
             )}
 
             <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>
-                GST ({invoice.gstRate}%)
-              </Text>
-              <Text style={styles.totalsValue}>
-                ${invoice.gstAmt.toFixed(2)} CAD
-              </Text>
+              <Text style={styles.totalsLabel}>GST ({invoice.gstRate}%)</Text>
+              <Text style={styles.totalsValue}>${invoice.gstAmt.toFixed(2)} CAD</Text>
             </View>
 
             <View style={styles.totalsDivider} />
@@ -455,15 +460,17 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({
           ) : null}
         </View>
 
-        {/* Footer */}
+        {/* Footer — pinned to bottom by flex layout */}
         <View style={styles.footer}>
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>
-              Payment Terms: <Text style={styles.paymentTermsText}>{invoice.paymentTerms}</Text>
+              Payment Terms:{" "}
+              <Text style={styles.paymentTermsText}>{invoice.paymentTerms}</Text>
             </Text>
+            <Text style={styles.footerText}>Opsora Systems · Vancouver, BC</Text>
           </View>
           <Text style={styles.footerNote}>
-            If you are unable to make the online payment, please contact us at rajbarot@opsorastystems.com
+            Questions? Contact us at rajbarot@opsorasystems.com
           </Text>
         </View>
       </Page>

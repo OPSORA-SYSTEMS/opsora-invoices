@@ -28,9 +28,10 @@ export async function GET(
   }
 
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const logoUrl = settings?.logoPath
-    ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${settings.logoPath}`
-    : undefined;
+    ? `${baseUrl}${settings.logoPath}`
+    : `${baseUrl}/logo.png`;
 
   const invoiceForPDF: Invoice = {
     ...invoice,

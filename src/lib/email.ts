@@ -134,7 +134,7 @@ export async function sendInvoiceEmail(
 
   await resend.emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
-    reply_to: REPLY_TO,
+    replyTo: REPLY_TO,
     to: invoice.client.email,
     subject: `Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, false),
@@ -152,7 +152,7 @@ export async function sendReminderEmail(invoice: Invoice): Promise<void> {
 
   await resend.emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
-    reply_to: REPLY_TO,
+    replyTo: REPLY_TO,
     to: invoice.client.email,
     subject: `Payment Reminder: Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, true),

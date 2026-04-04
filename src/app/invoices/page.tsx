@@ -60,8 +60,11 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleDelete = async (invoiceId: number) => {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
+  const handleDelete = async (invoiceId: number, status: string) => {
+    const msg = status !== "draft"
+      ? `This invoice is ${status}. Permanently delete it?`
+      : "Delete this invoice?";
+    if (!confirm(msg)) return;
     const res = await fetch(`/api/invoices/${invoiceId}`, { method: "DELETE" });
     if (res.ok) fetchInvoices();
   };
@@ -143,15 +146,14 @@ export default function InvoicesPage() {
                   </div>
                   <div className="flex items-center gap-2 pt-1">
                     <button onClick={() => router.push(`/invoices/${invoice.id}`)} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-accent">View</button>
+                    <button onClick={() => router.push(`/invoices/${invoice.id}?edit=1`)} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-accent">Edit</button>
                     <button onClick={() => handleDownloadPDF(invoice.id, invoice.number)} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-accent">PDF</button>
                     {invoice.status !== "paid" && (
                       <button onClick={() => handleSend(invoice.id)} disabled={sending === invoice.id} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-blue-600 disabled:opacity-50">
-                        {sending === invoice.id ? "Sending..." : "Send"}
+                        {sending === invoice.id ? "..." : "Send"}
                       </button>
                     )}
-                    {invoice.status === "draft" && (
-                      <button onClick={() => handleDelete(invoice.id)} className="flex-1 py-1.5 text-xs font-medium border border-red-200 rounded-lg text-red-400 hover:text-red-600">Delete</button>
-                    )}
+                    <button onClick={() => handleDelete(invoice.id, invoice.status)} className="flex-1 py-1.5 text-xs font-medium border border-red-200 rounded-lg text-red-400 hover:text-red-600">Del</button>
                   </div>
                 </div>
               ))}
@@ -263,15 +265,13 @@ export default function InvoicesPage() {
                               )}
                             </button>
                           )}
-                          {invoice.status === "draft" && (
-                            <button
-                              onClick={() => handleDelete(invoice.id)}
-                              className="p-1.5 text-brand-textMuted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Delete invoice"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleDelete(invoice.id, invoice.status)}
+                            className="p-1.5 text-brand-textMuted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete invoice"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

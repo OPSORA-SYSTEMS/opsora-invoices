@@ -68,6 +68,8 @@ export interface Invoice {
   notes: string;
   sentAt: string | null;
   paidAt: string | null;
+  paymentRef: string;
+  paymentMethod: string;
   createdAt: string;
   updatedAt: string;
   items: InvoiceItem[];

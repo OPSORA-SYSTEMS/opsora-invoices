@@ -48,6 +48,8 @@ export async function PUT(
     paymentTerms,
     notes,
     items,
+    paymentRef,
+    paymentMethod,
   } = body;
 
   const invoiceId = parseInt(params.id);
@@ -65,6 +67,8 @@ export async function PUT(
   if (dueDate !== undefined) updateData.dueDate = new Date(dueDate);
   if (paymentTerms !== undefined) updateData.paymentTerms = paymentTerms;
   if (notes !== undefined) updateData.notes = notes;
+  if (paymentRef !== undefined) updateData.paymentRef = paymentRef;
+  if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
 
   if (status === "paid") {
     updateData.paidAt = new Date();

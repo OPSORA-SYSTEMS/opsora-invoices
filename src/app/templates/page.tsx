@@ -143,14 +143,14 @@ export default function TemplatesPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-brand-textDark">Templates</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-brand-textDark">Templates</h1>
             <p className="text-sm text-brand-textMuted mt-0.5">
               Save invoice structures for quick reuse
             </p>
           </div>
-          <Button variant="primary" onClick={handleOpenCreate}>
+          <Button variant="primary" onClick={handleOpenCreate} className="w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Create Template
           </Button>
@@ -289,7 +289,7 @@ export default function TemplatesPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Payment Terms"
               placeholder="Due on receipt"

@@ -107,16 +107,16 @@ export default function ServicesPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-brand-textDark">
+            <h1 className="text-xl md:text-2xl font-bold text-brand-textDark">
               Services Catalogue
             </h1>
             <p className="text-sm text-brand-textMuted mt-0.5">
               Manage your reusable services and pricing
             </p>
           </div>
-          <Button variant="primary" onClick={handleOpenCreate}>
+          <Button variant="primary" onClick={handleOpenCreate} className="w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Add Service
           </Button>
@@ -154,72 +154,85 @@ export default function ServicesPage() {
               </Button>
             </div>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-brand-border bg-brand-surface2">
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">
-                    Service Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">
-                    Unit Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">
-                    Added
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-brand-textMuted uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-border">
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-brand-border">
                 {services.map((service) => (
-                  <tr
-                    key={service.id}
-                    className="hover:bg-brand-surface2 transition-colors"
-                  >
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm font-semibold text-brand-textDark">
-                        {service.name}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm text-brand-textMuted">
-                        {service.description || "-"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm font-semibold text-brand-accent">
-                        {formatCAD(service.unitPrice)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className="text-sm text-brand-textMuted">
-                        {format(new Date(service.createdAt), "MMM d, yyyy")}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleOpenEdit(service)}
-                          className="p-1.5 text-brand-textMuted hover:text-brand-accent hover:bg-pink-50 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(service.id)}
-                          className="p-1.5 text-brand-textMuted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <div key={service.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-brand-textDark">{service.name}</div>
+                      {service.description && (
+                        <div className="text-xs text-brand-textMuted truncate">{service.description}</div>
+                      )}
+                      <div className="text-sm font-bold text-brand-accent mt-0.5">{formatCAD(service.unitPrice)}</div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => handleOpenEdit(service)}
+                        className="p-2 text-brand-textMuted hover:text-brand-accent hover:bg-pink-50 rounded-lg transition-colors"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(service.id)}
+                        className="p-2 text-brand-textMuted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden md:block">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-brand-border bg-brand-surface2">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">Service Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">Unit Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-brand-textMuted uppercase tracking-wider">Added</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-brand-textMuted uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-brand-border">
+                    {services.map((service) => (
+                      <tr key={service.id} className="hover:bg-brand-surface2 transition-colors">
+                        <td className="px-6 py-3.5">
+                          <span className="text-sm font-semibold text-brand-textDark">{service.name}</span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span className="text-sm text-brand-textMuted">{service.description || "-"}</span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span className="text-sm font-semibold text-brand-accent">{formatCAD(service.unitPrice)}</span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span className="text-sm text-brand-textMuted">{format(new Date(service.createdAt), "MMM d, yyyy")}</span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleOpenEdit(service)}
+                              className="p-1.5 text-brand-textMuted hover:text-brand-accent hover:bg-pink-50 rounded-lg transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(service.id)}
+                              className="p-1.5 text-brand-textMuted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>

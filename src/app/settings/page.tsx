@@ -153,7 +153,7 @@ export default function SettingsPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-brand-textDark">Settings</h1>
             <p className="text-sm text-brand-textMuted mt-0.5">
@@ -186,7 +186,7 @@ export default function SettingsPage() {
               Company Information
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Company Name"
               value={settings.companyName}
@@ -297,7 +297,7 @@ export default function SettingsPage() {
               Tax &amp; Invoice Settings
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="GST Number"
               placeholder="Your GST registration number"
@@ -377,7 +377,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="pt-2 border-t border-brand-border">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-medium text-brand-textDark">
                   Test SMTP Connection

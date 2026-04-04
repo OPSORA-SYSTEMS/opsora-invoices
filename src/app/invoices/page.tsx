@@ -73,15 +73,15 @@ export default function InvoicesPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-brand-textDark">Invoices</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-brand-textDark">Invoices</h1>
             <p className="text-sm text-brand-textMuted mt-0.5">
               Manage and track all your invoices
             </p>
           </div>
-          <Link href="/invoices/new">
-            <Button variant="primary">
+          <Link href="/invoices/new" className="w-full sm:w-auto">
+            <Button variant="primary" className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               New Invoice
             </Button>
@@ -89,12 +89,12 @@ export default function InvoicesPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-1 bg-white border border-brand-border rounded-lg p-1 w-fit shadow-sm">
+        <div className="flex flex-wrap gap-1 bg-white border border-brand-border rounded-lg p-1 shadow-sm">
           {filters.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 filter === f.value
                   ? "bg-brand-accent text-white shadow-sm"
                   : "text-brand-textMuted hover:text-brand-textDark hover:bg-brand-surface2"
@@ -125,7 +125,40 @@ export default function InvoicesPage() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Mobile card view */}
+            <div className="md:hidden divide-y divide-brand-border">
+              {invoices.map((invoice) => (
+                <div key={invoice.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <Link href={`/invoices/${invoice.id}`} className="text-sm font-bold text-brand-accent">
+                      {invoice.number}
+                    </Link>
+                    <Badge status={invoice.status} />
+                  </div>
+                  <div className="text-sm font-medium text-brand-textDark">{invoice.client.name}</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-brand-textMuted">Due {format(new Date(invoice.dueDate), "MMM d, yyyy")}</span>
+                    <span className="text-sm font-bold text-brand-textDark">{formatCAD(invoice.total)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <button onClick={() => router.push(`/invoices/${invoice.id}`)} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-accent">View</button>
+                    <button onClick={() => handleDownloadPDF(invoice.id, invoice.number)} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-accent">PDF</button>
+                    {invoice.status !== "paid" && (
+                      <button onClick={() => handleSend(invoice.id)} disabled={sending === invoice.id} className="flex-1 py-1.5 text-xs font-medium border border-brand-border rounded-lg text-brand-textMuted hover:text-blue-600 disabled:opacity-50">
+                        {sending === invoice.id ? "Sending..." : "Send"}
+                      </button>
+                    )}
+                    {invoice.status === "draft" && (
+                      <button onClick={() => handleDelete(invoice.id)} className="flex-1 py-1.5 text-xs font-medium border border-red-200 rounded-lg text-red-400 hover:text-red-600">Delete</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-brand-border bg-brand-surface2">
@@ -246,6 +279,7 @@ export default function InvoicesPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       </div>

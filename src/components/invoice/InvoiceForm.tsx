@@ -155,16 +155,16 @@ export default function InvoiceForm({ settings, initialData, onSave }: InvoiceFo
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Main content */}
-        <div className="col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Client & Dates */}
           <div className="bg-white rounded-xl border border-brand-border p-6 shadow-sm">
             <h3 className="text-sm font-semibold text-brand-textDark mb-4">
               Invoice Details
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="col-span-1 sm:col-span-2">
                 <Select
                   label="Client"
                   options={clientOptions}
@@ -188,7 +188,7 @@ export default function InvoiceForm({ settings, initialData, onSave }: InvoiceFo
                 error={errors.dueDate?.message}
                 {...register("dueDate")}
               />
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Input
                   label="Payment Terms"
                   placeholder="e.g., Due on receipt, Net 30"
@@ -197,7 +197,7 @@ export default function InvoiceForm({ settings, initialData, onSave }: InvoiceFo
                 />
               </div>
               {initialData?.id && (
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <Select
                     label="Status"
                     options={statusOptions}

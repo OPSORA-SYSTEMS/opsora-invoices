@@ -6,6 +6,7 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = "invoices@opsorasystems.com";
 const FROM_NAME = "Opsora Systems";
+const REPLY_TO = "rajbarot@opsorasystems.com";
 
 function buildInvoiceEmailHTML(invoice: Invoice, isReminder = false): string {
   const dueDate = format(new Date(invoice.dueDate), "MMMM d, yyyy");
@@ -133,6 +134,7 @@ export async function sendInvoiceEmail(
 
   await resend.emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    reply_to: REPLY_TO,
     to: invoice.client.email,
     subject: `Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, false),
@@ -150,6 +152,7 @@ export async function sendReminderEmail(invoice: Invoice): Promise<void> {
 
   await resend.emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    reply_to: REPLY_TO,
     to: invoice.client.email,
     subject: `Payment Reminder: Invoice ${invoice.number} from Opsora Systems`,
     html: buildInvoiceEmailHTML(invoice, true),

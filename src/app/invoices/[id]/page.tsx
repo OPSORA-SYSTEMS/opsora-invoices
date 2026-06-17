@@ -22,6 +22,7 @@ import {
   Clock,
   Trash2,
   CreditCard,
+  Receipt,
 } from "lucide-react";
 
 const PAYMENT_METHODS = [
@@ -73,6 +74,14 @@ export default function InvoiceDetailPage() {
     const link = document.createElement("a");
     link.href = `/api/invoices/${invoice.id}/pdf`;
     link.download = `Invoice-${invoice.number}.pdf`;
+    link.click();
+  };
+
+  const handleDownloadReceipt = () => {
+    if (!invoice) return;
+    const link = document.createElement("a");
+    link.href = `/api/invoices/${invoice.id}/pdf?type=receipt`;
+    link.download = `Receipt-${invoice.number}.pdf`;
     link.click();
   };
 
@@ -253,6 +262,13 @@ export default function InvoiceDetailPage() {
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">PDF</span>
             </Button>
+            {invoice.status === "paid" && (
+              <Button variant="primary" size="sm" onClick={handleDownloadReceipt}>
+                <Receipt className="w-4 h-4" />
+                <span className="hidden sm:inline">Download Receipt</span>
+                <span className="sm:hidden">Receipt</span>
+              </Button>
+            )}
             {invoice.status !== "paid" && (
               <>
                 <Button
@@ -315,7 +331,20 @@ export default function InvoiceDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {/* Main Invoice Preview */}
-          <div className="md:col-span-2 space-y-4">
+          <div className="md:col-span-2 space-y-4 relative">
+            {/* PAID stamp overlay */}
+            {invoice.status === "paid" && (
+              <div className="pointer-events-none absolute right-4 top-20 z-10 -rotate-[16deg] select-none">
+                <div className="rounded-lg border-4 border-green-600/80 px-4 py-1.5 text-center opacity-90">
+                  <div className="text-3xl font-extrabold tracking-[0.2em] text-green-600/90">PAID</div>
+                  {invoice.paidAt && (
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-green-600/90">
+                      {format(new Date(invoice.paidAt), "MMM d, yyyy")}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             {/* Invoice Header */}
             <div className="bg-brand-bg rounded-xl overflow-hidden shadow-sm">
               <div className="px-6 py-5 flex items-start justify-between">

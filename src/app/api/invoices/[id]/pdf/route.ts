@@ -14,6 +14,8 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isReceipt = request.nextUrl.searchParams.get("type") === "receipt";
+
   const invoice = await prisma.invoice.findUnique({
     where: { id: parseInt(params.id) },
     include: {
@@ -25,6 +27,14 @@ export async function GET(
 
   if (!invoice) {
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  }
+
+  // A receipt can only be generated for a paid invoice.
+  if (isReceipt && invoice.status !== "paid") {
+    return NextResponse.json(
+      { error: "Receipt is only available once the invoice is marked paid" },
+      { status: 400 }
+    );
   }
 
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -55,13 +65,20 @@ export async function GET(
     })),
   };
 
-  const pdfBuffer = await generateInvoicePDF(invoiceForPDF, logoUrl, settings?.gstNumber ?? null);
+  const pdfBuffer = await generateInvoicePDF(
+    invoiceForPDF,
+    logoUrl,
+    settings?.gstNumber ?? null,
+    isReceipt ? "receipt" : "invoice"
+  );
+
+  const filePrefix = isReceipt ? "Receipt" : "Invoice";
 
   return new NextResponse(pdfBuffer as unknown as BodyInit, {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Invoice-${invoice.number}.pdf"`,
+      "Content-Disposition": `attachment; filename="${filePrefix}-${invoice.number}.pdf"`,
       "Content-Length": String(pdfBuffer.length),
     },
   });

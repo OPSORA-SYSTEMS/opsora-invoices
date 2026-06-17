@@ -8,14 +8,17 @@ import Input from "@/components/ui/Input";
 import { Service } from "@/types";
 import { format } from "date-fns";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { formatCurrencyString, parseCurrency } from "@/lib/format";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  unitPrice: z.string().refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) >= 0, "Valid price required"),
+  unitPrice: z
+    .string()
+    .refine((v) => parseCurrency(v) >= 0 && v.trim() !== "", "Valid price required"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -32,6 +35,7 @@ export default function ServicesPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -62,7 +66,7 @@ export default function ServicesPage() {
     reset({
       name: service.name,
       description: service.description,
-      unitPrice: String(service.unitPrice),
+      unitPrice: formatCurrencyString(String(service.unitPrice)),
     });
     setShowModal(true);
   };
@@ -75,7 +79,7 @@ export default function ServicesPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, unitPrice: parseFloat(data.unitPrice) }),
+        body: JSON.stringify({ ...data, unitPrice: parseCurrency(data.unitPrice) }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -262,15 +266,22 @@ export default function ServicesPage() {
               className="w-full text-sm border border-brand-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-accent text-brand-textDark placeholder-brand-textMuted resize-none"
             />
           </div>
-          <Input
-            label="Unit Price (CAD)"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-            required
-            error={errors.unitPrice?.message}
-            {...register("unitPrice")}
+          <Controller
+            control={control}
+            name="unitPrice"
+            render={({ field }) => (
+              <Input
+                label="Unit Price (CAD)"
+                type="text"
+                inputMode="decimal"
+                leftIcon={<span className="text-sm">$</span>}
+                placeholder="0.00"
+                required
+                error={errors.unitPrice?.message}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(formatCurrencyString(e.target.value))}
+              />
+            )}
           />
           <div className="flex gap-3 pt-2">
             <Button type="submit" loading={saving} className="flex-1">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { Service } from "@/types";
+import CurrencyInput from "@/components/ui/CurrencyInput";
 
 export interface LineItem {
   id?: number;
@@ -134,12 +135,10 @@ export default function LineItemsEditor({
                 <label className="text-xs text-brand-textMuted block mb-1">Unit Price</label>
                 <div className="relative">
                   <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-brand-textMuted">$</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                  <CurrencyInput
                     value={item.unitPrice}
-                    onChange={(e) => updateItem(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                    onValueChange={(v) => updateItem(index, "unitPrice", v)}
+                    placeholder="0.00"
                     className="w-full text-sm border border-brand-border rounded pl-5 pr-2 py-2 text-right focus:outline-none focus:ring-1 focus:ring-brand-accent text-brand-textDark"
                   />
                 </div>
@@ -225,12 +224,10 @@ export default function LineItemsEditor({
             <div className="col-span-2">
               <div className="relative">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-brand-textMuted">$</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
+                <CurrencyInput
                   value={item.unitPrice}
-                  onChange={(e) => updateItem(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                  onValueChange={(v) => updateItem(index, "unitPrice", v)}
+                  placeholder="0.00"
                   className="w-full text-sm border border-brand-border rounded pl-5 pr-2 py-1.5 text-right focus:outline-none focus:ring-1 focus:ring-brand-accent text-brand-textDark"
                 />
               </div>

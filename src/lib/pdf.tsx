@@ -12,6 +12,7 @@ import { Invoice } from "@/types";
 import { format } from "date-fns";
 
 const PINK = "#e91e8c";
+const GREEN = "#16a34a";
 const DARK = "#1a0a2e";
 const HEADER_BG = "#0d0018";   // matches logo corner/edge dark gradient
 const LIGHT_PINK_BG = "#fdf2f8";
@@ -295,6 +296,62 @@ const styles = StyleSheet.create({
   },
   notesText: { color: TEXT, fontSize: 9.5, lineHeight: 1.6 },
 
+  // ── PAID stamp (receipt) ─────────────────────────────────
+  paidStamp: {
+    position: "absolute",
+    top: 250,
+    right: 70,
+    width: 168,
+    transform: "rotate(-16deg)",
+    borderWidth: 4,
+    borderColor: GREEN,
+    borderStyle: "solid",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    opacity: 0.85,
+  },
+  paidStampText: {
+    color: GREEN,
+    fontSize: 32,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 5,
+  },
+  paidStampDate: {
+    color: GREEN,
+    fontSize: 8.5,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+
+  // ── Payment received box (receipt) ───────────────────────
+  paidBox: {
+    backgroundColor: "#f0fdf4",
+    borderWidth: 1,
+    borderColor: "#bbf7d0",
+    borderStyle: "solid",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+  },
+  paidBoxTitle: {
+    color: GREEN,
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  paidBoxRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 3,
+  },
+  paidBoxLabel: { color: MUTED, fontSize: 9 },
+  paidBoxValue: { color: DARK, fontSize: 9, fontFamily: "Helvetica-Bold" },
+
   // ── Footer ───────────────────────────────────────────────
   footer: {
     borderTopWidth: 1,
@@ -336,24 +393,37 @@ const styles = StyleSheet.create({
   },
 });
 
+// Currency display with thousands separators, e.g. 500000 -> "$500,000.00".
+const money = (n: number) =>
+  `$${new Intl.NumberFormat("en-CA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)}`;
+
+type PDFVariant = "invoice" | "receipt";
+
 interface InvoicePDFDocumentProps {
   invoice: Invoice;
   logoUrl?: string;
   gstNumber?: string | null;
+  variant?: PDFVariant;
 }
 
-const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUrl, gstNumber }) => {
+const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUrl, gstNumber, variant = "invoice" }) => {
   const issueDate = format(new Date(invoice.issueDate), "MMM d, yyyy");
   const dueDate = format(new Date(invoice.dueDate), "MMM d, yyyy");
+  const isReceipt = variant === "receipt";
+  const paidDate = invoice.paidAt ? format(new Date(invoice.paidAt), "MMM d, yyyy") : null;
+  const docLabel = isReceipt ? "RECEIPT" : "INVOICE";
 
   const statusColor =
-    invoice.status === "paid" ? "#16a34a"
+    invoice.status === "paid" ? GREEN
     : invoice.status === "overdue" ? "#dc2626"
     : invoice.status === "sent" ? "#2563eb"
     : MUTED;
 
   return (
-    <Document title={`Invoice ${invoice.number}`} author="Opsora Systems">
+    <Document title={`${docLabel} ${invoice.number}`} author="Opsora Systems">
       <Page size="A4" style={styles.page}>
 
         {/* Header */}
@@ -370,13 +440,21 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
             )}
           </View>
           <View style={styles.headerRight}>
-            <Text style={styles.invoiceTitle}>INVOICE</Text>
+            <Text style={styles.invoiceTitle}>{docLabel}</Text>
             <Text style={styles.invoiceNumber}>#{invoice.number}</Text>
           </View>
         </View>
 
         {/* Pink accent line */}
         <View style={styles.accentBar} />
+
+        {/* PAID stamp (receipt only) */}
+        {isReceipt && (
+          <View style={styles.paidStamp}>
+            <Text style={styles.paidStampText}>PAID</Text>
+            {paidDate ? <Text style={styles.paidStampDate}>{paidDate}</Text> : null}
+          </View>
+        )}
 
         {/* Body */}
         <View style={styles.content}>
@@ -442,8 +520,8 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
               <View key={item.id || index} style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : {}]}>
                 <Text style={[styles.tableCell, styles.colDesc]}>{item.description}</Text>
                 <Text style={[styles.tableCell, styles.colQty, { textAlign: "center" }]}>{item.quantity}</Text>
-                <Text style={[styles.tableCell, styles.colPrice, { textAlign: "right" }]}>${item.unitPrice.toFixed(2)}</Text>
-                <Text style={[styles.tableCell, styles.colAmt, { textAlign: "right" }]}>${item.amount.toFixed(2)}</Text>
+                <Text style={[styles.tableCell, styles.colPrice, { textAlign: "right" }]}>{money(item.unitPrice)}</Text>
+                <Text style={[styles.tableCell, styles.colAmt, { textAlign: "right" }]}>{money(item.amount)}</Text>
               </View>
             ))}
           </View>
@@ -452,44 +530,69 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
           <View style={styles.totalsContainer}>
             <View style={styles.totalsRow}>
               <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>${invoice.subtotal.toFixed(2)} CAD</Text>
+              <Text style={styles.totalsValue}>{money(invoice.subtotal)} CAD</Text>
             </View>
             {invoice.discountPct > 0 && (
               <>
                 <View style={styles.totalsRow}>
                   <Text style={styles.totalsLabel}>Discount ({invoice.discountPct}%)</Text>
-                  <Text style={[styles.totalsValue, { color: "#16a34a" }]}>-${invoice.discountAmt.toFixed(2)} CAD</Text>
+                  <Text style={[styles.totalsValue, { color: GREEN }]}>-{money(invoice.discountAmt)} CAD</Text>
                 </View>
                 <View style={styles.totalsDivider} />
                 <View style={styles.totalsRow}>
                   <Text style={styles.totalsLabel}>After Discount</Text>
-                  <Text style={styles.totalsValue}>${(invoice.subtotal - invoice.discountAmt).toFixed(2)} CAD</Text>
+                  <Text style={styles.totalsValue}>{money(invoice.subtotal - invoice.discountAmt)} CAD</Text>
                 </View>
               </>
             )}
             <View style={styles.totalsRow}>
               <Text style={styles.totalsLabel}>GST ({invoice.gstRate}%)</Text>
-              <Text style={styles.totalsValue}>${invoice.gstAmt.toFixed(2)} CAD</Text>
+              <Text style={styles.totalsValue}>{money(invoice.gstAmt)} CAD</Text>
             </View>
             <View style={styles.totalsDivider} />
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total Due</Text>
-              <Text style={styles.totalValue}>${invoice.total.toFixed(2)} CAD</Text>
+            <View style={[styles.totalRow, isReceipt ? { backgroundColor: GREEN } : {}]}>
+              <Text style={styles.totalLabel}>{isReceipt ? "Amount Paid" : "Total Due"}</Text>
+              <Text style={[styles.totalValue, isReceipt ? { color: "#ffffff" } : {}]}>{money(invoice.total)} CAD</Text>
             </View>
           </View>
 
-          {/* Interac e-Transfer payment box */}
-          <View style={styles.interacBox}>
-            <View style={styles.interacBadge}>
-              <Text style={styles.interacBadgeText}>interac</Text>
-              <Text style={styles.interacBadgeSub}>e-Transfer</Text>
+          {isReceipt ? (
+            /* Payment received details (receipt) */
+            <View style={styles.paidBox}>
+              <Text style={styles.paidBoxTitle}>Payment Received — Thank You</Text>
+              {paidDate ? (
+                <View style={styles.paidBoxRow}>
+                  <Text style={styles.paidBoxLabel}>Date Paid</Text>
+                  <Text style={styles.paidBoxValue}>{paidDate}</Text>
+                </View>
+              ) : null}
+              {invoice.paymentMethod ? (
+                <View style={styles.paidBoxRow}>
+                  <Text style={styles.paidBoxLabel}>Method</Text>
+                  <Text style={styles.paidBoxValue}>{invoice.paymentMethod}</Text>
+                </View>
+              ) : null}
+              {invoice.paymentRef ? (
+                <View style={styles.paidBoxRow}>
+                  <Text style={styles.paidBoxLabel}>Reference</Text>
+                  <Text style={styles.paidBoxValue}>{invoice.paymentRef}</Text>
+                </View>
+              ) : null}
             </View>
-            <View style={styles.interacContent}>
-              <Text style={styles.interacTitle}>Pay via Interac e-Transfer</Text>
-              <Text style={styles.interacEmail}>rajbarot@opsorasystems.com</Text>
-              <Text style={styles.interacNote}>Please include invoice number in the memo</Text>
+          ) : (
+            /* Interac e-Transfer payment box (invoice) */
+            <View style={styles.interacBox}>
+              <View style={styles.interacBadge}>
+                <Text style={styles.interacBadgeText}>interac</Text>
+                <Text style={styles.interacBadgeSub}>e-Transfer</Text>
+              </View>
+              <View style={styles.interacContent}>
+                <Text style={styles.interacTitle}>Pay via Interac e-Transfer</Text>
+                <Text style={styles.interacEmail}>rajbarot@opsorasystems.com</Text>
+                <Text style={styles.interacNote}>Please include invoice number in the memo</Text>
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Notes */}
           {invoice.notes ? (
@@ -517,8 +620,13 @@ const InvoicePDFDocument: React.FC<InvoicePDFDocumentProps> = ({ invoice, logoUr
   );
 };
 
-export async function generateInvoicePDF(invoice: Invoice, logoUrl?: string, gstNumber?: string | null): Promise<Buffer> {
-  const doc = <InvoicePDFDocument invoice={invoice} logoUrl={logoUrl} gstNumber={gstNumber} />;
+export async function generateInvoicePDF(
+  invoice: Invoice,
+  logoUrl?: string,
+  gstNumber?: string | null,
+  variant: PDFVariant = "invoice"
+): Promise<Buffer> {
+  const doc = <InvoicePDFDocument invoice={invoice} logoUrl={logoUrl} gstNumber={gstNumber} variant={variant} />;
   const buffer = await renderToBuffer(doc);
   return Buffer.from(buffer);
 }
